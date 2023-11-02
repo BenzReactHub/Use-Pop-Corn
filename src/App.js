@@ -51,8 +51,8 @@ const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
 export default function App() {
-  const [ movies, setMovies ] = useState(tempMovieData);
-  const [ watched, setWatched ] = useState(tempWatchedData);
+  const [movies, setMovies] = useState(tempMovieData);
+  const [watched, setWatched] = useState(tempWatchedData);
   return (
     <>
       <NavBar>
@@ -61,6 +61,17 @@ export default function App() {
         <Numresults movies={movies} />
       </NavBar>
       <Main>
+        {/* 顯式element寫法 */}
+        {/* <Box element={<MovieList movies={movies} />} />
+        <Box
+          element={
+            <>
+              <WatchedSummary watched={watched} />
+              <WatchedMoviesList watched={watched} />
+            </>
+          }
+        /> */}
+        {/* 隱式children寫法 */}
         <Box>
           <MovieList movies={movies} />
         </Box>
