@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import PropTypes from 'prop-types';
 
 const containerStyle = { display: "flex", alignItems: "center", gap: "16px" };
 
@@ -6,6 +7,18 @@ const startContainerStyle = {
   display: "flex",
   gap: "4px",
 };
+
+// 我們現在都是用typescript了，這種方式很少人使用了
+StarRating.propTypes = {
+    // maxRating: PropTypes.number.isRequired,
+    maxRating: PropTypes.number,
+    color: PropTypes.string,
+    size: PropTypes.number,
+    className: PropTypes.string,
+    message: PropTypes.array,
+    defaultRating: PropTypes.number,
+    onSetRating: PropTypes.func,
+}
 
 export default function StarRating({
   maxRating = 5,
