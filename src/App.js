@@ -53,17 +53,38 @@ const average = (arr) =>
 const KEY = "cb84075d";
 
 export default function App() {
+  const [query, setQuery] = useState("inception");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [ isLoading, setIsLoading ] = useState(false);
   const [error, setError] = useState("");
-  // const query = 'interstellar'
-  const query = '12348sfgsfg'
+  const tempQuery = 'interstellar'
+  
+
+  // useEffect(function() {
+  //   console.log('After initial render');
+  // }, [])
+
+  // useEffect(function() {
+  //   console.log('After every render');
+  // });
+
+  // useEffect(function() {
+  //   console.log("D")
+  // }, [query])
+
+  // console.log('During render');
 
   useEffect(()=> {
     (async ()=> {
+      if(query.length < 3) {
+        setMovies([]);
+        setError('');
+        return
+      }
       try {
         setIsLoading(true);
+        setError('');
         const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
         if(!res.ok) throw new Error("Something went wrong with fetching movies.")
 
@@ -79,13 +100,13 @@ export default function App() {
       }
     })()
     
-  }, []); // 這樣意味著這個效果只會在組件第一次掛載時執行
+  }, [query]); // 這樣意味著這個效果只會在組件第一次掛載時執行
 
   return (
     <>
       <NavBar>
         <Logo />
-        <Search />
+        <Search query={query} setQuery={setQuery}/>
         <Numresults movies={movies} />
       </NavBar>
       <Main>
@@ -140,8 +161,8 @@ function Logo() {
   );
 }
 
-function Search() {
-  const [query, setQuery] = useState("");
+function Search({ query, setQuery }) {
+  
   return (
     <input
       className="search"
