@@ -54,7 +54,7 @@ const average = (arr) =>
 const KEY = "cb84075d";
 
 export default function App() {
-  const [query, setQuery] = useState("inception");
+  const [query, setQuery] = useState("");
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -99,6 +99,7 @@ export default function App() {
         setError("");
         return;
       }
+      handleCloseMoive();
       try {
         setIsLoading(true);
         setError("");
@@ -305,9 +306,23 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
     return () => {
       document.title = 'usePopcorn';
       // 因為閉包的特性，所以clean up function 可以讀取到component原本的變數
-      console.log(`Clean up effect for movie ${title}`);
+      // console.log(`Clean up effect for movie ${title}`);
     }
   }, [title])
+
+  useEffect(()=> {
+    function callback (e) {
+      if(e.code === 'Escape'){
+        // 如果沒有使用cleanup function的話，我們還是可以觸發這個event
+        onCloseMoive();
+        // console.log('CLOSE');
+      }
+    }
+    document.addEventListener('keydown' ,callback);
+    return ()=> {
+      document.removeEventListener('keydown', callback);
+    }
+  }, [onCloseMoive])
 
   function handleAdd() {
     const newWatchedMovie = {
@@ -352,7 +367,7 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
                   <StarRating
                     size={24}
                     maxRating={10}
-                    defaultRating={imdbRating}
+                    defaultRating={+imdbRating}
                     onSetRating={setUserRating}
                   />
                   {userRating > 0 && (
