@@ -290,6 +290,11 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
     })();
   }, [selectedId, watched]);
 
+  useEffect(()=> {
+    if(!title) return;
+    document.title = `Movie | ${title}`;
+  }, [title])
+
   function handleAdd() {
     const newWatchedMovie = {
       imdbID: selectedId,
