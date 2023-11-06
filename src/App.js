@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const tempMovieData = [
   {
@@ -50,9 +50,37 @@ const tempWatchedData = [
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
+const KEY = "cb84075d";
+
 export default function App() {
-  const [movies, setMovies] = useState(tempMovieData);
-  const [watched, setWatched] = useState(tempWatchedData);
+  const [movies, setMovies] = useState([]);
+  const [watched, setWatched] = useState([]);
+  const [ isLoading, setIsLoading ] = useState(false);
+  const [error, setError] = useState("");
+  // const query = 'interstellar'
+  const query = '12348sfgsfg'
+
+  useEffect(()=> {
+    (async ()=> {
+      try {
+        setIsLoading(true);
+        const res = await fetch(`http://www.omdbapi.com/?apikey=${KEY}&s=${query}`);
+        if(!res.ok) throw new Error("Something went wrong with fetching movies.")
+
+        const data = await res.json();
+      if(data.Response === 'False') throw new Error('Movie not found');
+        setMovies(data.Search);
+        // console.log(data.Search)
+      } catch (error) {
+        // console.error(error.message);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    })()
+    
+  }, []); // 這樣意味著這個效果只會在組件第一次掛載時執行
+
   return (
     <>
       <NavBar>
@@ -73,7 +101,10 @@ export default function App() {
         /> */}
         {/* 隱式children寫法 */}
         <Box>
-          <MovieList movies={movies} />
+          {isLoading && <Loader/>}
+          {isLoading && !error && <Loader/>}
+          {error && <ErrorMessage message={error}/>}
+          {!isLoading && !error && <MovieList movies={movies}/>}
         </Box>
         <Box>
           <WatchedSummary watched={watched} />
@@ -82,6 +113,16 @@ export default function App() {
       </Main>
     </>
   );
+}
+
+function Loader() {
+  return <p className="loader">Loading...</p>
+}
+
+function ErrorMessage({ message }) {
+  return <p className="error">
+    <span>🚫</span>{message}
+  </p>
 }
 
 // Structural Component
