@@ -92,6 +92,7 @@ export default function App() {
   }
 
   useEffect(() => {
+    const controller = new AbortController();
     (async () => {
       if (query.length < 3) {
         setMovies([]);
@@ -102,7 +103,7 @@ export default function App() {
         setIsLoading(true);
         setError("");
         const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`
+          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`, { signal: controller.signal }
         );
         if (!res.ok)
           throw new Error("Something went wrong with fetching movies.");
@@ -110,14 +111,22 @@ export default function App() {
         const data = await res.json();
         if (data.Response === "False") throw new Error("Movie not found");
         setMovies(data.Search);
-        console.log(data.Search);
+        // console.log(data.Search);
+        setError("");
       } catch (error) {
         // console.error(error.message);
-        setError(error.message);
+        if(error.name !== 'AbortError') {
+          setError(error.message);
+        }
       } finally {
         setIsLoading(false);
       }
+      
     })();
+
+    return () => {
+      controller.abort()
+    };
   }, [query]); // 這樣意味著這個效果只會在組件第一次掛載時執行
 
   return (
@@ -293,6 +302,11 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
   useEffect(()=> {
     if(!title) return;
     document.title = `Movie | ${title}`;
+    return () => {
+      document.title = 'usePopcorn';
+      // 因為閉包的特性，所以clean up function 可以讀取到component原本的變數
+      console.log(`Clean up effect for movie ${title}`);
+    }
   }, [title])
 
   function handleAdd() {
