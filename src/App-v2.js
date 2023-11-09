@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import StarRating from "./StarRating";
+import { useMovies } from "./useMovies";
 
 const tempMovieData = [
   {
@@ -55,10 +56,9 @@ const KEY = "cb84075d";
 
 export default function App() {
   const [query, setQuery] = useState("");
-  const [movies, setMovies] = useState([]);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
+
+  const {movies, isLoading, error } = useMovies(query, handleCloseMoive);
   
   // const [watched, setWatched] = useState([]);
   // 在useState中的回調函數不能有傳遞參數
@@ -107,45 +107,6 @@ export default function App() {
     localStorage.setItem('watched', JSON.stringify([...watched]))
     
   }, [watched])
-
-  useEffect(() => {
-    const controller = new AbortController();
-    (async () => {
-      if (query.length < 3) {
-        setMovies([]);
-        setError("");
-        return;
-      }
-      handleCloseMoive();
-      try {
-        setIsLoading(true);
-        setError("");
-        const res = await fetch(
-          `http://www.omdbapi.com/?apikey=${KEY}&s=${query}`, { signal: controller.signal }
-        );
-        if (!res.ok)
-          throw new Error("Something went wrong with fetching movies.");
-
-        const data = await res.json();
-        if (data.Response === "False") throw new Error("Movie not found");
-        setMovies(data.Search);
-        // console.log(data.Search);
-        setError("");
-      } catch (error) {
-        // console.error(error.message);
-        if(error.name !== 'AbortError') {
-          setError(error.message);
-        }
-      } finally {
-        setIsLoading(false);
-      }
-      
-    })();
-
-    return () => {
-      controller.abort()
-    };
-  }, [query]); // 這樣意味著這個效果只會在組件第一次掛載時執行
 
   return (
     <>
