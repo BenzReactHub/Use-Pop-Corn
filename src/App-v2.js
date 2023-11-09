@@ -312,6 +312,17 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
   const [movie, setMovie] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [userRating, setUserRating] = useState(0);
+
+  const countRef = useRef(0);
+  // 這樣子count不會有作用，只會記錄到最後一次
+  // 因為只要re-render就又會變成0了
+  let count = 0;
+
+  useEffect(()=> {
+    if(userRating) countRef.current ++;
+    if(userRating) count++;
+  }, [userRating, count])
+
   const isWatched = watched.map((movie) => movie.imdbID).includes(selectedId);
   const watchedUserRating = watched.find(movie=> movie.imdbID === selectedId)?.userRating;
 
@@ -397,6 +408,8 @@ function MovieDetail({ selectedId, watched, onCloseMoive, onAddWatched }) {
       userRating,
       imdbRating: Number(imdbRating),
       runtime: Number(runtime.split(" ").at(0)),
+      countRatingDecisions: countRef.current,
+      count,
     };
     onAddWatched(newWatchedMovie);
     onCloseMoive();
