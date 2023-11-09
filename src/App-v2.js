@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import StarRating from "./StarRating";
 
 const tempMovieData = [
@@ -223,6 +223,30 @@ function Logo() {
 }
 
 function Search({ query, setQuery }) {
+  // 這樣做其實不好，因為這樣直接操作DOM，就脫離使用React了
+  // useEffect(()=>{
+  //   const el = document.querySelector('.search');
+  //   console.log(el);
+  //   el.focus();
+  // }, [])
+
+  // 我們使用useRef會是比較好的做法
+  const inputEl = useRef(null);
+
+  useEffect(()=> {
+    function callback(e){
+      
+      if(document.activeElement === inputEl.current) return;
+
+      if(e.code === 'Enter') {
+        inputEl.current.focus();
+        setQuery('')
+      }
+    }
+    document.addEventListener('keydown', callback);
+
+    return ()=> document.addEventListener('keydown', callback);
+  }, [setQuery])
   return (
     <input
       className="search"
@@ -230,6 +254,7 @@ function Search({ query, setQuery }) {
       placeholder="Search movies..."
       value={query}
       onChange={(e) => setQuery(e.target.value)}
+      ref={inputEl}
     />
   );
 }
