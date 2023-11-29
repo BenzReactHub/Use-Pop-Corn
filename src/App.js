@@ -15,36 +15,25 @@ function useKey(key, action) {
 }
 
 export default function App() {
+  const [ btnClickNum, setBtnClickNum ] = useState(0);
   const [query, setQuery] = useState("Search Movies...");
-  // useEffect(()=>{
-  //   function callback(e){
-  //     const inputEl = document.querySelector(".search");
-  //     if(e.code === 'Enter') return inputEl.focus();
-  //   }
-  //   document.addEventListener('keydown', callback);
-  //   return ()=>{
-  //     document.removeEventListener('keydown', callback);
-  //   }
-  // }, [])
   const inputEl = useRef(null);
+  const totalOperationsNum = useRef(0);
+
+  useEffect(()=>{
+    if(btnClickNum > 0) totalOperationsNum.current+=1;
+  }, [btnClickNum])
+
+  useEffect(()=>{
+    totalOperationsNum.current+=1;
+  }, [query])
+
+
   useKey('Enter', ()=>{
     if (document.activeElement === inputEl.current) return;
     inputEl.current.focus();
     setQuery("");
   })
-  // useEffect(() => {
-  //   function callback(e) {
-  //     if (document.activeElement === inputEl.current) return;
-  //     if (e.code === "Enter") {
-  //       inputEl.current.focus();
-  //       setQuery("");
-  //     }
-  //   }
-  //   document.addEventListener("keydown", callback);
-  //   return () => {
-  //     document.removeEventListener("keydown", callback);
-  //   };
-  // }, []);
   return (
     <div>
       <input
@@ -55,6 +44,9 @@ export default function App() {
         }}
         value={query}
       />
+      <div>User Total Operations Number is: {totalOperationsNum.current}</div>
+      <div>Button Click Total Number is: {btnClickNum}</div>
+      <button onClick={()=>{setBtnClickNum((prevNum)=>(prevNum+1))}}>+1</button>
     </div>
   );
 }
