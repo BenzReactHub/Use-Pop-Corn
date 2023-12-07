@@ -1,52 +1,54 @@
 import React, { useEffect, useState, useRef } from "react";
 
-function useKey(key, action) {
+export default function App() {
+  const [counter, setCounter] = useState(0);
+  const [formValue, setFormValue] = useState("");
+  const inputEl = useRef(null);
+  const counterRef = useRef(0);
+
   useEffect(() => {
     function callback(e) {
-      if (e.code.toLowerCase() === key.toLowerCase()) {
-        action();
+      if (e.code === "Enter") {
+        inputEl.current.focus();
       }
     }
     document.addEventListener("keydown", callback);
-    return () => {
-      document.removeEventListener("keydown", callback);
-    };
-  }, [key, action]);
-}
 
-export default function App() {
-  const [ btnClickNum, setBtnClickNum ] = useState(0);
-  const [query, setQuery] = useState("Search Movies...");
-  const inputEl = useRef(null);
-  const totalOperationsNum = useRef(0);
+    return () => document.removeEventListener("keydown", callback);
+  }, []);
 
-  useEffect(()=>{
-    if(btnClickNum > 0) totalOperationsNum.current+=1;
-  }, [btnClickNum])
+  useEffect(() => {
+    counterRef.current += 1;
+  }, [counter, formValue]);
 
-  useEffect(()=>{
-    totalOperationsNum.current+=1;
-  }, [query])
+  function handleFormValue(e) {
+    setFormValue(e.target.value);
+  }
 
+  function handleCount() {
+    setCounter((count) => count + 1);
+  }
 
-  useKey('Enter', ()=>{
-    if (document.activeElement === inputEl.current) return;
-    inputEl.current.focus();
-    setQuery("");
-  })
   return (
     <div>
+      <p style={{ fontSize: "2.5rem" }}>
+        Total Operations Count: {counterRef.current}
+      </p>
+      <p style={{ fontSize: "2.5rem" }}>Counter: {counter}</p>
+      <p style={{ fontSize: "2.5rem" }}>Form Value: {formValue}</p>
       <input
+        style={{ padding: "1.25rem", fontSize: "2.5rem" }}
+        value={formValue}
+        onChange={handleFormValue}
         ref={inputEl}
-        className="search"
-        onChange={(e) => {
-          setQuery(e.target.value);
-        }}
-        value={query}
       />
-      <div>User Total Operations Number is: {totalOperationsNum.current}</div>
-      <div>Button Click Total Number is: {btnClickNum}</div>
-      <button onClick={()=>{setBtnClickNum((prevNum)=>(prevNum+1))}}>+1</button>
+      <br />
+      <button
+        style={{ fontSize: "2.5rem", marginTop: "3rem" }}
+        onClick={handleCount}
+      >
+        +1
+      </button>
     </div>
   );
 }
